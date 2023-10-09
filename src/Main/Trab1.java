@@ -24,7 +24,8 @@ public class Trab1 {
         this.t_max = t_max;
         this.t_int = t_int;
         this.deltaX = length_x/s_partition;
-        this.deltaT = t_max/t_partition;
+        this.deltaT = 0.95*(1/((u/deltaX) + (2*a/(deltaX*deltaX))));
+        //this.deltaT = t_max/t_partition;
         this.Ca = Ca;
         this.Cb = Cb;
         this.Cc = Cc;
@@ -70,10 +71,5 @@ public class Trab1 {
             Qs = tmp;
             System.out.println(Arrays.toString(Qs));
         }
-        //for(int i=0; i<length; i++) if(Qs[i] < 0.0) {
-        //    System.out.println("Deu número negativo!!!");
-        //    return;
-        //}
-        //System.out.println(Arrays.toString(Qs));
     }
 }
