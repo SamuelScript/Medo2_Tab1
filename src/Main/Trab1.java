@@ -16,8 +16,11 @@ public class Trab1 {
     private final double Cb; //Concentração inicial B
     private final double Cc; //Concentração inicial C
     private double[] Qs; //Valores no interior do domínio
+    private double t_draw;
+    private double dt_draw;
+    private GChart chart;
 
-    Trab1(double length_x, double length_xf, double u, double a, double t_max, double t_int, double Ca, double Cb, double Cc, int s_partition, int t_partition) { //Inicializa todos os valores para o tempo 0.
+    Trab1(double length_x, double length_xf, double u, double a, double t_max, double t_int, double Ca, double Cb, double Cc, int s_partition, int draw) { //Inicializa todos os valores para o tempo 0.
         this.length_x = length_x;
         this.length_xf = length_xf;
         this.u = u;
@@ -31,6 +34,10 @@ public class Trab1 {
         this.Cb = Cb;
         this.Cc = Cc;
 
+        dt_draw = t_max / draw; //Intervalo para desenhar no gráfico
+        t_draw  = dt_draw;
+        chart = new GChart("Alguma coisa", draw + 1);
+
         Qs = new double[s_partition];
 
         int i;
@@ -39,12 +46,17 @@ public class Trab1 {
     }
 
     public void run() { //Roda quantas iterações forem necessárias até que T alcançe t_max.
-        double t; //Nosso tempo inicial.
+        double t = 0; //Nosso tempo inicial.
+        int c = 0; //Qual curva está sendo desenhada.
         double[] Qss = new double[Qs.length];
         final double dtdx = deltaT/deltaX;
         final int length = Qs.length;
 
-        System.out.println(Arrays.toString(Qs));
+        //System.out.println(Arrays.toString(Qs));
+
+        for(int i = 0; i < length; i++) chart.addData(0, i * deltaX, Qs[i]);
+        chart.setLabel(0, "T = 0.0");
+        c++;
 
         Qss[0] = Ca; //Precisamos inicializar o contorno em nosso array auxiliar também.
 
@@ -56,7 +68,14 @@ public class Trab1 {
             double[] tmp = Qss;
             Qss = Qs;
             Qs = tmp;
-            System.out.println(Arrays.toString(Qs));
+            //System.out.println(Arrays.toString(Qs));
+
+            if(t_draw <= t) {
+                for(int i = 0; i < length; i++) chart.addData(c, i * deltaX, Qs[i]);
+                chart.setLabel(c, "T = " + t);
+                c++;
+                t_draw += dt_draw;
+            }
         }
 
         Qs[0] = Cc; //Após o tempo intermediário, c(0,t), t > t_int passa a ter valor Cc.
@@ -70,7 +89,20 @@ public class Trab1 {
             double[] tmp = Qss;
             Qss = Qs;
             Qs = tmp;
-            System.out.println(Arrays.toString(Qs));
+            //System.out.println(Arrays.toString(Qs));
+
+            if(t_draw <= t) {
+                for(int i = 0; i < length; i++) chart.addData(c, i * deltaX, Qs[i]);
+                chart.setLabel(c, "T = " + t);
+                c++;
+                t_draw += dt_draw;
+            }
         }
+
+        for(int i = 0; i < length; i++) chart.addData(c, i * deltaX, Qs[i]);
+        chart.setLabel(c, "T = " + t);
+
+        chart.setVisible(true);
+        chart.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }
