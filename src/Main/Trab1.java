@@ -1,5 +1,6 @@
 package Main;
 
+import javax.swing.*;
 import java.util.Arrays;
 
 public class Trab1 {
