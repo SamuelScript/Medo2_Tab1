@@ -45,7 +45,7 @@ public class Trab1 {
         for(i = i; i < s_partition; i++) Qs[i] = Cb;
     }
 
-    public void run() { //Roda quantas iterações forem necessárias até que T alcançe t_max.
+    public void run() throws InvocationTargetException, IllegalAccessException { //Roda quantas iterações forem necessárias até que T alcançe t_max.
         double t = 0; //Nosso tempo inicial.
         int c = 0; //Qual curva está sendo desenhada.
         double[] Qss = new double[Qs.length];
@@ -64,7 +64,7 @@ public class Trab1 {
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
                 Qss[i] = Qs[i] - dtdx*(u*(Qs[i] - Qs[i-1]) - a*((Qs[i+1] - 2*Qs[i] + Qs[i-1])/deltaX));
             }
-            Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
+            //Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
             double[] tmp = Qss;
             Qss = Qs;
             Qs = tmp;
@@ -83,9 +83,9 @@ public class Trab1 {
 
         for(t = t_int; t <= t_max; t += deltaT) { //Iterar em t_int < t <= t_max,
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
-                Qss[i] = Qs[i] - dtdx*(u*(Qs[i] - Qs[i-1]) - a*((Qs[i+1] - 2*Qs[i] + Qs[i-1])/deltaX));
+                Qss[i] = (double) method.invoke(this,i);
             }
-            Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
+            //Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
             double[] tmp = Qss;
             Qss = Qs;
             Qs = tmp;
@@ -105,4 +105,5 @@ public class Trab1 {
         chart.setVisible(true);
         chart.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+
 }
