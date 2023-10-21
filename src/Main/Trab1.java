@@ -1,6 +1,10 @@
 package Main;
 
+import sun.reflect.Reflection;
+
 import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public class Trab1 {
@@ -15,12 +19,35 @@ public class Trab1 {
     private final double Ca; //Concentração inicial A
     private final double Cb; //Concentração inicial B
     private final double Cc; //Concentração inicial C
+    private final Method method; //O método que vai ser usado por este objeto. Em Java, um "Method" é basicamente uma referência a uma função.
     private double[] Qs; //Valores no interior do domínio
     private double t_draw;
     private double dt_draw;
     private GChart chart;
 
-    Trab1(double length_x, double length_xf, double u, double a, double t_max, double t_int, double Ca, double Cb, double Cc, int s_partition, int draw) { //Inicializa todos os valores para o tempo 0.
+    private double mtrab1( int Xi ) {
+        return Qs[Xi] - (deltaT/deltaX)*(u*(Qs[Xi] - Qs[Xi-1]) - a*((Qs[Xi+1] - 2*Qs[Xi] + Qs[Xi-1])/deltaX));
+    }
+
+    private double FTBS( int Xi ) {
+        return Qs[Xi] - u*(deltaT/deltaX)*(Qs[Xi] - Qs[Xi-1]);
+    }
+
+    private double Lax_Friedrichs( int Xi ) {
+        return (Qs[Xi+1] + Qs[Xi-1])/2 - u*(deltaT/deltaX)*(Qs[Xi+1] - Qs[Xi-1]);
+    }
+
+    private double Lax_Wendroff( int Xi ) {
+        double udtdx = u*(deltaT/deltaX);
+        return Qs[Xi] - udtdx*(Qs[Xi+1] - Qs[Xi-1]) + (udtdx*udtdx/2)*(Qs[Xi+1] - 2*Qs[Xi] + Qs[Xi-1]);
+    }
+
+    private double Beam_Warming( int Xi ) {
+        int x_2 = Math.max(0, Xi-2);
+        return Qs[Xi] - ((u*deltaT) / (2*deltaX))*(3*Qs[Xi] - 4*Qs[Xi-1] + Qs[x_2]) + ((u*u*deltaT*deltaT) / (2*deltaX*deltaX))*(Qs[Xi] - 2*Qs[Xi-1] + Qs[x_2]);
+    }
+
+    Trab1(double length_x, double length_xf, double u, double a, double t_max, double t_int, double Ca, double Cb, double Cc, int s_partition, int draw, Method method) { //Inicializa todos os valores para o tempo 0.
         this.length_x = length_x;
         this.length_xf = length_xf;
         this.u = u;
@@ -28,17 +55,18 @@ public class Trab1 {
         this.t_max = t_max;
         this.t_int = t_int;
         this.deltaX = length_x/s_partition;
-        this.deltaT = 0.95*(1/((u/deltaX) + (2*a/(deltaX*deltaX))));
-        //this.deltaT = t_max/t_partition;
+        this.deltaT = 0.8*(1/((u/deltaX) + (2*a/(deltaX*deltaX))));
         this.Ca = Ca;
         this.Cb = Cb;
         this.Cc = Cc;
+        this.method = method;
 
         dt_draw = t_max / draw; //Intervalo para desenhar no gráfico
         t_draw  = dt_draw;
-        chart = new GChart("Alguma coisa", draw + 1);
+        chart = new GChart(method.getName(), draw + 1);
 
-        Qs = new double[s_partition];
+        Qs = new double[s_partition+1];
+        Qs[s_partition] = 0; //Contorno direito explicitado.
 
         int i;
         for(i = 0; i < Math.round((length_xf/length_x)*s_partition); i++) Qs[i] = Ca;
@@ -62,7 +90,7 @@ public class Trab1 {
 
         for(t = deltaT; t <= t_int; t += deltaT){ //Iterar em 0 < t <= t_int.
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
-                Qss[i] = Qs[i] - dtdx*(u*(Qs[i] - Qs[i-1]) - a*((Qs[i+1] - 2*Qs[i] + Qs[i-1])/deltaX));
+                Qss[i] = (double) method.invoke(this, i);
             }
             //Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
             double[] tmp = Qss;
