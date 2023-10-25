@@ -38,8 +38,7 @@ public class Trab1 {
     }
 
     private double Lax_Wendroff( int Xi ) {
-        double udtdx = u*(deltaT/deltaX);
-        return Qs[Xi] - udtdx*(Qs[Xi+1] - Qs[Xi-1]) + (udtdx*udtdx/2)*(Qs[Xi+1] - 2*Qs[Xi] + Qs[Xi-1]);
+        return Qs[Xi] - u*(deltaT/deltaX)*(Qs[Xi+1] - Qs[Xi-1]) + ((u*u*deltaT*deltaT) / (2*deltaX*deltaX))*(Qs[Xi+1] - 2*Qs[Xi] + Qs[Xi-1]);
     }
 
     private double Beam_Warming( int Xi ) {
