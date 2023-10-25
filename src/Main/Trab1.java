@@ -1,6 +1,9 @@
 package Main;
 
 import sun.reflect.Reflection;
+
+import java.awt.*;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -23,7 +26,7 @@ public class Trab1 {
     private double dt_draw;
     private GChart chart;
 
-    private double mtrab1( int Xi ) {
+    private double Algoritmo_Trabalho_1( int Xi ) {
         return Qs[Xi] - (deltaT/deltaX)*(u*(Qs[Xi] - Qs[Xi-1]) - a*((Qs[Xi+1] - 2*Qs[Xi] + Qs[Xi-1])/deltaX));
     }
 
@@ -44,6 +47,8 @@ public class Trab1 {
         return Qs[Xi] - ((u*deltaT) / (2*deltaX))*(3*Qs[Xi] - 4*Qs[Xi-1] + Qs[x_2]) + ((u*u*deltaT*deltaT) / (2*deltaX*deltaX))*(Qs[Xi] - 2*Qs[Xi-1] + Qs[x_2]);
     }
 
+
+
     Trab1(double length_x, double length_xf, double u, double a, double t_max, double t_int, double Ca, double Cb, double Cc, int s_partition, int draw, Method method) { //Inicializa todos os valores para o tempo 0.
         this.length_x = length_x;
         this.length_xf = length_xf;
@@ -63,11 +68,11 @@ public class Trab1 {
         chart = new GChart(method.getName(), draw + 1);
 
         Qs = new double[s_partition+1];
-        Qs[s_partition] = 0; //Contorno direito explicitado.
 
         int i;
         for(i = 0; i < Math.round((length_xf/length_x)*s_partition); i++) Qs[i] = Ca;
-        for(i = i; i < s_partition; i++) Qs[i] = Cb;
+        for(i = i; i <= s_partition; i++) Qs[i] = Cb;
+        for(int j = 1; j <= draw; j++) chart.setColor(j, Color.BLUE);
     }
 
     public void run() throws InvocationTargetException, IllegalAccessException { //Roda quantas iterações forem necessárias até que T alcançe t_max.
@@ -84,6 +89,7 @@ public class Trab1 {
         Qss[0] = Ca; //Precisamos inicializar o contorno em nosso array auxiliar também.
 
         for(t = deltaT; t <= t_int; t += deltaT){ //Iterar em 0 < t <= t_int.
+            //System.out.println("T = "+t);
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
                 Qss[i] = (double) method.invoke(this, i);
             }
@@ -103,6 +109,7 @@ public class Trab1 {
         Qss[0] = Cc; //Mesma coisa com nosso array auxiliar.
 
         for(t = t_int; t <= t_max; t += deltaT) { //Iterar em t_int < t <= t_max,
+            //System.out.println("T = "+t);
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
                 Qss[i] = (double) method.invoke(this, i);
             }
@@ -121,8 +128,11 @@ public class Trab1 {
         for(int i = 0; i < length; i++) chart.addData(c, i * deltaX, Qs[i]);
         chart.setLabel(c, "T = " + t);
 
-        chart.setVisible(true);
-        chart.setDefaultCloseOperation(3); //Exit on Close.
+        for(int i = 1; i <= c ; i++){
+            for(int j = 1; j <= c ; j++) chart.setVisible(j, false);
+            chart.setVisible(i, true);
+            try{ chart.savePNG("/home/samuel/ProjetosProg/export/"+method.getName()+" "+i+".png", 900, 600); }
+            catch(IOException e) { e.printStackTrace(); }
+        }
     }
-
 }

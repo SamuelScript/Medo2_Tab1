@@ -2,6 +2,7 @@ package Main;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -11,6 +12,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 public class GChart extends JFrame {
@@ -23,13 +26,15 @@ public class GChart extends JFrame {
         series[serie].setKey(label);
     }
 
-    public void setData(int serie, Number[] x, Number[] y) {
-        for(int i=0; i<x.length; i++) series[serie].add(x[i], y[i]);
-    }
+    public void setVisible(int serie, boolean visible) { chart.getXYPlot().getRenderer().setSeriesVisible(serie, visible); }
 
-    public void addData(int serie, Number x, Number y) {
-        series[serie].add(x, y);
-    }
+    public void setColor(int serie, Paint paint) { chart.getXYPlot().getRenderer().setSeriesPaint(serie, paint); }
+
+    public void savePNG(String path, int width, int height) throws IOException { ChartUtilities.saveChartAsPNG(new File(path), chart, width, height); }
+
+    public void setData(int serie, Number[] x, Number[] y) { for(int i=0; i<x.length; i++) series[serie].add(x[i], y[i]); }
+
+    public void addData(int serie, Number x, Number y) { series[serie].add(x, y); }
 
 
     public GChart(String title, int series) {
