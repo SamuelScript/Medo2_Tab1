@@ -1,8 +1,6 @@
 package Main;
 
 import sun.reflect.Reflection;
-
-import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -79,8 +77,6 @@ public class Trab1 {
         final double dtdx = deltaT/deltaX;
         final int length = Qs.length;
 
-        //System.out.println(Arrays.toString(Qs));
-
         for(int i = 0; i < length; i++) chart.addData(0, i * deltaX, Qs[i]);
         chart.setLabel(0, "T = 0.0");
         c++;
@@ -91,11 +87,9 @@ public class Trab1 {
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
                 Qss[i] = (double) method.invoke(this, i);
             }
-            //Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
             double[] tmp = Qss;
             Qss = Qs;
             Qs = tmp;
-            //System.out.println(Arrays.toString(Qs));
 
             if(t_draw <= t) {
                 for(int i = 0; i < length; i++) chart.addData(c, i * deltaX, Qs[i]);
@@ -110,13 +104,11 @@ public class Trab1 {
 
         for(t = t_int; t <= t_max; t += deltaT) { //Iterar em t_int < t <= t_max,
             for(int i = 1; i < length-1; i++) { //Iterar todos os volumes da malha (Exceto contornos!)
-                Qss[i] = (double) method.invoke(this,i);
+                Qss[i] = (double) method.invoke(this, i);
             }
-            //Qss[length-1] = Qs[length-1] - dtdx*(u*(Qs[length-1] - Qs[length-2]) - a*((-2*Qs[length-1] + Qs[length-2])/deltaX));
             double[] tmp = Qss;
             Qss = Qs;
             Qs = tmp;
-            //System.out.println(Arrays.toString(Qs));
 
             if(t_draw <= t) {
                 for(int i = 0; i < length; i++) chart.addData(c, i * deltaX, Qs[i]);
@@ -130,7 +122,7 @@ public class Trab1 {
         chart.setLabel(c, "T = " + t);
 
         chart.setVisible(true);
-        chart.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        chart.setDefaultCloseOperation(3); //Exit on Close.
     }
 
 }
